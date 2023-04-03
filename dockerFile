@@ -1,0 +1,71 @@
+FROM openjdk:8
+MAINTAINER Anirban Sen Chowdhary, senchowdhary.anirban@gmail.com
+
+RUN rm -rf Mule
+RUN mkdir Mule
+
+#Adding Work Directory
+CMD echo "--- Adding Work Directory ---"
+WORKDIR /Mule
+
+
+
+#Add  Mule runtime from our local system to the Docker container
+CMD echo "--- Adding Mule4.1.4 runtime in Docker Container ---"
+ADD  mule-ee-distribution-standalone-4.4.0.zip /Mule
+
+#Extracting Mule runtime zip file and converting the extracted folder to the name mule-enterprise-standalone folder
+RUN         unzip mule-ee-distribution-standalone-4.4.0.zip && \
+    ls -ltr . && \
+    mv mule-enterprise-standalone-4.4.0-20220622 mule-enterprise-standalone && \
+    rm mule-ee-distribution-standalone-4.4.0.zip && \
+    ls -ltr . 
+
+
+
+# Define volume mount points
+VOLUME      ["/Mule/mule-enterprise-standalone/logs", "/Mule/mule-enterprise-standalone/apps", "/Mule/mule-enterprise-standalone/domains"]
+
+
+
+
+# Copy and install license
+#CMD echo "--- Copy and install license ---"
+#RUN ls -ltr mule-enterprise-standalone/conf/
+#COPY  ./Licence/license.lic mule-enterprise-standalone/conf/
+#RUN   mule-enterprise-standalone/bin/mule -installLicense mule-enterprise-standalone/conf/license.lic
+#CMD echo "------ Licence installed ! --------"
+
+
+
+#Copy and deploy mule application in runtime
+CMD echo "--- Deploying mule application in runtime ---"
+COPY  ./SampleApp/sampleapp.jar mule-enterprise-standalone/apps/
+RUN ls -ltr mule-enterprise-standalone/apps/
+
+
+
+# Expose the necessary port ranges as required by the Mule Apps
+EXPOSE      8081-8085
+EXPOSE      9000
+EXPOSE      9082
+
+# Mule remote debugger
+EXPOSE      5000
+
+# Mule JMX port (must match Mule config file)
+EXPOSE      1098
+
+# Mule MMC agent port
+EXPOSE      7777
+
+# AMC agent port
+EXPOSE      9997
+
+# Start Mule runtime
+CMD echo "--- Starting Mule runtime ---"
+CMD ["mule-enterprise-standalone/bin/mule", "-M-Dmule.agent.enabled=false"]
+
+#docker build -t anir-mule -f dockerFile .  (To build the File)
+#docker run --name anirban-mule -p 8000:8081 -i -t anir-mule (To run the file)
+#http://localhost:8000/testpath
