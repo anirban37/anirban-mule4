@@ -12,10 +12,11 @@ WORKDIR /Mule
 
 #Add  Mule runtime from our local system to the Docker container
 CMD echo "--- Adding Mule4.1.4 runtime in Docker Container ---"
-ADD  mule-ee-distribution-standalone-4.4.0.zip /Mule
+#ADD  mule-ee-distribution-standalone-4.4.0.zip /Mule
 
 #Extracting Mule runtime zip file and converting the extracted folder to the name mule-enterprise-standalone folder
-RUN         unzip mule-ee-distribution-standalone-4.4.0.zip && \
+RUN wget https://dl.dropboxusercontent.com/s/06zr4yig7ktymkb/mule-ee-distribution-standalone-4.4.0.zip && \        
+    unzip mule-ee-distribution-standalone-4.4.0.zip && \
     ls -ltr . && \
     mv mule-enterprise-standalone-4.4.0-20220622 mule-enterprise-standalone && \
     rm mule-ee-distribution-standalone-4.4.0.zip && \
